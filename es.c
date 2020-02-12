@@ -40,7 +40,7 @@ float	x;
 	install_keyboard();
 
 	textout_ex(screen, font, "x: ", 10, 30, 3, 0);
-	get_string(str, 34, 30, 3, 0);
+get_string(str, 34, 30, 3, 0);
 	sscanf(str, "%f", &x);
 	printf("%f\n", x);
 	
