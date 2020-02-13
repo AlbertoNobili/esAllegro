@@ -71,7 +71,135 @@ struct timespec {
 //Non sono disponibili funzioni per fare operazioni sulle variabili temporali
 //FUnzioni disponibili:
 int clock_getres(clockid_t clk_id, struct timespec* res)
- 
+int clock_gettime(clockid_t clk_id, struct timespec* t)
+int clock_settime(clockid_t clk_id, struct timespec* t)
+int clock_nanosleep(clockid_t clk_id, int flag, const struct timespec* t, struct timespec* rem)
+
+/* Real time parameters */
+struct task_par {
+	int		arg;			// task argument 
+	long	wcet; 			// in microseconds
+	int 	period;			// in microseconds
+	int 	deadline;		// relative (ms)
+	int 	priority;		// in [0, 99]
+	int		dmiss;			// # of misses
+	struct	timespec at;	// next activation time
+	struct	timespec dl;	// absolute deadline
+};
+
+/* Task abstraction */
+
+int task_create( void* (*task)(void*), int i, int period, int drel, int prio)
+{
+pthread_attr_t 		myatt;
+struct sched_param	mypar;
+int					tret;
+
+	if (i > NT) return -1;
+	
+	tp[i].arg = i;
+	tp[i].period = period]; 
+	tp[i].deadline = drel;
+	tp[i].priority = prio;
+	tp[i].dmiss = 0;
+
+	pthread_attr_init[myatt];
+	pthread_attr_sethineritsched(&myattr, PTHREAD_EXPLICIT_SCHED);
+	pthread_attr_setschedpolicy(&myattr, SCHED_RR);
+	mypar.sched_priority = prio;
+	pthread_attr_setschedparam(&myattr, &mypar);
+	
+	tret = pthread_create(&tid, &myatt, task, (void*)(&tp[i]));
+	return tret;
+}
+
+/* Scheme of a periodic task */
+void* task(void* arg)
+{
+<local variables>
+int ti;
+
+	ti = get_task_index(arg);
+	set_activation(ti);
+	while (1) {
+		<task body>
+		if(deadline_miss(ti)) <do action>;
+		wait_for_activation(ti);
+	}	
+}
+
+int get_task_index(void* arg)
+{
+struct task_par* tpar;
+	tpar = (struct task_par*)arg;
+	return tpar->arg;
+}
+
+void set_activation (int i)
+{
+struct timespec t;
+		
+	clock_gettime(CLOCK_MONOTONIC, &t);
+	time_copy(&(tp[i].at), t);
+	time_copy(&(tp[i].dl), t);
+	time_add_ms(&(tp[i].al), tp[i].period);
+	time_add_ms(&(tp[i].dl), tp[i].deadline);
+}
+
+int deadline_miss(int i)
+{
+struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	if (time_cmp(now, tp[i].dl) > 0){
+		tp[i].dmiss++;
+		return 1;
+	}
+	return 0;
+}
+
+void wait_for_activation(int i)
+{
+	clock_nanosleep(CLOCK_MONOTONIC, TIME_ABSTIME, &(tp[i].at), NULL);
+	time_add_ms(&(tp[i].at), tp[i].period);
+	time_add_ms(&(tp[i].dl), tp[i].period);
+}
+
+/* Semaphores */
+#include <semaphore.h>
+
+int sem_init(sem_t* sem, int pshared, unsigned int v);
+int sem_wait(sem_t* sem);
+int sem_post(sem_t* sem);
+int sem_destroy(sem_t* sem);
+int sem_getvalue(sem_t* sem, int* pval);
+
+/* Mutex */
+pthread_mutex_t mux;
+pthread_mutexattr_t matt;
+
+//1: inizializzazione diretta
+mux = PTHREAD_MUTEX_INITIALIZER;
+//2: inizializzazione mediante valori default
+pthread_mutex_init(&mux, NULL);
+//3: inizializzazione mediante attributi
+pthread_mutexattr_init(&matt);
+pthread_mutexattr_setprotocol(&matt, PROTOCOLLO); ***
+pthread_mutex_init(&mux, &matt);
+pthread_mutexattr_destroy(&matt);
+
+*** PROTOCOLLO in {PTHREAD_PRIO_NONE, PTHREAD_PRIO_INHERIT, PTHREAD_PRIO_PROTECT}
+*** se si sceglie PTHREAD_PRIO_PROTECT  si deve chiamare la funzione 
+*** pthread_mutexattr_setpriorityceiling(&matt, CEILING) dove CEILING è la più alta priorità tra i thread che usano il mutex
+
+//funzioni sui mutex:
+pthread_mutex_lock(&mux);
+pthread_mutex_unlock(&mux);
+pthread_mutex_destroy(&mux);
+
+
+
+
+
 
 
 
