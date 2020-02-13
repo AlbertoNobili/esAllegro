@@ -37,6 +37,7 @@ int pthread_attr_setschedpolicy(pthread_attr_t* attr, int state)
 int pthread_attr_getschedpolicy(const pthread_attr_t* attr, int* state)
 
 /* Ottenere il Round-Robin quantum */
+#include <sched.h>
 int sched_rr_get_interval(pid_t pid, struct timespec* tp)
 
 /* ESEMPIO */
