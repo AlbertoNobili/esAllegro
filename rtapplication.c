@@ -37,7 +37,9 @@ int		x, y;
 char	buf[2];
 	
 	i = get_task_index(arg);
-	sprintf(mes[i], "I'm task %d, T = %d", i, get_task_period(arg));
+	set_activation(i);
+	printf("task period %d\n", get_task_period(arg));
+	sprintf(mes[i], "I'm task %d, T = %d ", i, get_task_period(arg));
 	while (!end) {
 		x = XBASE + k*8;
 		y = YBASE + i*YINC;
@@ -48,27 +50,32 @@ char	buf[2];
 			k = 0;
 			textout_ex(screen, font, mes[i], XBASE, y, BKG, BKG);
 		}
-		wait_for_activation
-		(i);
+		wait_for_activation(i);
 	}
 }
 
 void wait_for_task_end(int i)
 {
-
+	pthread_join(tid[i], NULL);
 }
 
 int main()
 {
+int ret;
 int		i;
 char	scan;
 
 	init();
 	do {
 		scan = 0;
-		if(keypressed()) scan = readkey() >> 8;
+		if(keypressed()) {
+			printf("Hai premuto un tasto\n");
+			scan = readkey() >> 8;
+		} 
 		if(scan == KEY_SPACE && i < MAXT) {
-			task_create(hello, i, PER+i*PINC, PER*+i*PINC, 50);
+			printf("Creo un nuovo task %d di periodo %d\n", i, PER+i*PINC);
+			ret = task_create(hello, i, PER+i*PINC, PER+i*PINC, 50);
+			printf("task_create() ha ritornato %d\n", ret);
 			// nelle slides usava un ulteriore argomento: ACT
 			i++;
 		}

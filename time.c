@@ -22,9 +22,9 @@ void time_copy(struct timespec* td, struct timespec ts)
 void time_add_ms(struct timespec* t, int ms)
 {
 	t->tv_sec += ms/1000;
-	t->tv_nsec += (ms%1000)*10^6;
-	if (t->tv_nsec > 10^9) {
-		t->tv_nsec -= 10^9;
+	t->tv_nsec += (ms%1000)*1000000;
+	if (t->tv_nsec > 1000000000) {
+		t->tv_nsec -= 1000000000;
 		t->tv_sec += 1;
 	}
 }
