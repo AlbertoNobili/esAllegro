@@ -1,4 +1,3 @@
-//allegro-config --libs
 #include <allegro.h>
 #include <stdio.h>
 

@@ -28,9 +28,11 @@
 //-----------------------------------------------
 //	GLOBAL VARIABLES
 //-----------------------------------------------
-int		end = 0;
-char	mes[MAXT][LEN+1];
-
+int						end = 0;
+char					mes[MAXT][LEN+1];
+extern struct task_par	tp[MAXT];
+extern pthread_t		tid[MAXT];
+ 
 void init()
 {
 char	s[LEN];
@@ -39,7 +41,7 @@ char	s[LEN];
 		set_gfx_mode(GFX_AUTODETECT_WINDOWED, XWIN, YWIN, 0, 0);
 		clear_to_color(BKG);
 		install_keyboard();
-		ptask_init(SCHED_FIFO);
+		// ptask_init(SCHED_FIFO);  ??????
 		sprintf(s, "Press SPACE to create a task");
 		textout_ex(screen, font, s, 10, 10, 14, BKG);
 }
@@ -70,8 +72,8 @@ int		i, k = 0;
 int		x, y;
 char	buf[2];
 	
-	i = tesk_argument(arg);
-	sprintf(mes[i], "i'm task %d, T = %d", i, task_period(i));
+	i = get_task_index(arg);
+	sprintf(mes[i], "I'm task %d, T = %d", i, task_period(i));
 	while (!end) {
 		x = XBASE + k*8;
 		y = YBASE + i*YINC;
@@ -85,7 +87,6 @@ char	buf[2];
 		wait_for_period(i);
 	}
 }
-	
 	
 	
 	
