@@ -1,4 +1,4 @@
-#include <time.h>
+#include "time.h"
 // --------------------------------
 //In the POSIX standar, time is represented through 
 //the following structure:
@@ -13,8 +13,8 @@
 //destination variable pointed by td:
 void time_copy(struct timespec* td, struct timespec ts)
 {
-	ts->tv_sec = ts.tv_sec;
-	ts->tv-nsec = ts.tv_nsec;
+	td->tv_sec = ts.tv_sec;
+	td->tv_nsec = ts.tv_nsec;
 }
 
 //This function adds a value ms expressed in milliseconds 
@@ -24,14 +24,15 @@ void time_add_ms(struct timespec* t, int ms)
 	t->tv_sec += ms/1000;
 	t->tv_nsec += (ms%1000)*10^6;
 	if (t->tv_nsec > 10^9) {
-		tv->tv_nsec -= 10^9;
-		tv->tv_sec += 1;
+		t->tv_nsec -= 10^9;
+		t->tv_sec += 1;
 	}
 }
 
 //This function compares two time variables t1 and t2
 //and returns 0 if they are equal, 1 if t1 > t2, -1 if t1 < t2:
-int time_cmp(struct timespec t1, struct timespec t2){
+int time_cmp(struct timespec t1, struct timespec t2)
+{
 	if (t1.tv_sec > t2.tv_sec) return 1;
 	if (t2.tv_sec > t1.tv_sec) return -1;
 	if (t1.tv_nsec > t2.tv_nsec) return 1;
